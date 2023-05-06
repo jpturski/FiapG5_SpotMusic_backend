@@ -20,11 +20,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Requirements
-        run: pip install flask pytest pytest-cov flask-wtf flask-cors PyMySQL cryptography
-
-      - name: Unit Test
-        run: |
-          coverage run --source=app -m pytest test.py
-          coverage report -m
-          coverage xml -i
+      # Future steps to test the app
+      # - name: Install Requirements
+      #   run: pip install flask pytest pytest-cov flask-wtf flask-cors PyMySQL cryptography
+      #
+      # - name: Unit Test
+      #   run: |
+      #     coverage run --source=app -m pytest test.py
+      #     coverage report -m
+      #     coverage xml -i

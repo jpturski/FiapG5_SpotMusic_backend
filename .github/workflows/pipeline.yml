@@ -35,3 +35,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Docker Login
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > key.json
+          cat key.json | docker login -u _json_key --password-stdin '${{ secrets.GOOGLE_ARTIFACT }}'
+
+      - name: Build & Push Image
+        run: |
+          docker build -t ${{ secrets.GOOGLE_ARTIFACT }}/${{ secrets.GOOGLE_PROJECT_ID }}/${{ secrets.ARTIFACTREGISTRY_REPOSITORY }}/${{ secrets.GOOGLE_MYAPPNAMENAME }}:latest .
+          docker push ${{ secrets.GOOGLE_ARTIFACT }}/${{ secrets.GOOGLE_PROJECT_ID }}/${{ secrets.ARTIFACTREGISTRY_REPOSITORY }}/${{ secrets.GOOGLE_MYAPPNAME }}:latest
+
+  Deploy-Production:
+    needs: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
+
+      - name: Auth GCP
+        uses: 'google-github-actions/auth@v1' # https://github.com/google-github-actions/auth
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Cloud Run Deploy - Production
+        id: prod-deploy
+        uses: 'google-github-actions/deploy-cloudrun@v1'  # https://github.com/marketplace/actions/deploy-to-cloud-run
+        with:
+          service: ${{ secrets.GOOGLE_MYAPPNAME }}-prod
+          image:   ${{ secrets.GOOGLE_ARTIFACT }}/${{ secrets.GOOGLE_PROJECT_ID }}/${{ secrets.ARTIFACTREGISTRY_REPOSITORY }}/${{ secrets.GOOGLE_MYAPPNAME }}:latest
+          flags: '--allow-unauthenticated'
+
+      - name: Test Prod
+        run: 'curl "${{ steps.prod-deploy.outputs.url }}"'

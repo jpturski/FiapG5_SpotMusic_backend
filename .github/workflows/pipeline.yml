@@ -1,22 +1,18 @@
 # Nome do Workflow
 name: DevOpsLab Pipeline
-
-# Evento que irá acionar a pipeline
 on:
   push:
     branches:
       - main
-      - GA-pipeline
-
 jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
       - name: Download do Repositório
-        uses: actions/checkout@v3       # https://github.com/actions/checkout
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v4   # https://github.com/actions/setup-python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -52,16 +48,16 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3 # https://github.com/actions/checkout
+        uses: actions/checkout@v3
 
       - name: Auth GCP
-        uses: 'google-github-actions/auth@v1' # https://github.com/google-github-actions/auth
+        uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: Cloud Run Deploy - Production
         id: prod-deploy
-        uses: 'google-github-actions/deploy-cloudrun@v1'  # https://github.com/marketplace/actions/deploy-to-cloud-run
+        uses: 'google-github-actions/deploy-cloudrun@v1'
         with:
           service: ${{ vars.GOOGLE_MYAPPNAME }}-prod
           image:   ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.ARTIFACTREGISTRY_REPOSITORY }}/${{ vars.GOOGLE_MYAPPNAME }}:latest

@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - GA-pipeline
-
 jobs:
   Build:
     runs-on: ubuntu-latest
